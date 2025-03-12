@@ -19,11 +19,11 @@ This is a scheduling tool to create and manage work shifts made for PRC in mind.
 5. Start the frontend: cd client npm start
 6. Open local host in your browser
 
-## Technologies Used 🛠️
+## Technologies Used
 - **Frontend:** React 18
 - **Backend:** Express.js & MySQL
 - **Database Management:** Docker + MySQL
 - **Version Control:** GitHub
 
-## License 📜
+## License
 MIT License
