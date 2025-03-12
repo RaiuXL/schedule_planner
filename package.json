@@ -1,0 +1,31 @@
+{
+  "name": "schedule-planner",
+  "version": "1.0.0",
+  "description": "A schedule planning tool for managing shifts and employees",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": "",
+  "keywords": [],
+  "author": {
+    "name": "Nathan Tapia-Ramirez",
+    "email": "ntr.impreza@gmail.com"
+  },
+  "scripts": {
+    "dev": "",
+    "test": ""
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
