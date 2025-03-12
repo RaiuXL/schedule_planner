@@ -1,29 +1,28 @@
-# Ignore dependencies
+# Dependencies
 node_modules/
 package-lock.json
 
-# Ignore environment variables
+# Environment Variables
 .env
 config.env
 
-# Ignore logs
+# Logs
 logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.log
 
-# Ignore Docker files
-dbscripts/mysql_data/
-.dockerignore
+# Docker
 docker-compose.override.yml
 docker-compose.yml
+dbscripts/mysql_data/
 
-# Ignore build artifacts
+# Build Artifacts
 /dist
 /build
 
-# Ignore system & editor-specific files
+# System & Editor Files
 .DS_Store
 .vscode/
 .idea/
