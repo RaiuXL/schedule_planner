@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchSchedules, fetchAvailability } from "./api";
+import { fetchSchedules, fetchAvailability } from "./services/api";
 
 const App = () => {
     const [schedules, setSchedules] = useState([]);
