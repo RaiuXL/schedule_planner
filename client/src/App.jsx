@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { fetchSchedules, fetchAvailability } from "./services/api";
 import { Button } from "./components/ui/button.jsx";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
+import { Terminal } from "lucide-react"
+
+
 
 function App() {
   const [schedules, setSchedules] = useState([]);
@@ -28,6 +33,20 @@ function App() {
 
   return (
     <div className="p-6">
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>Heads up!</AlertTitle>
+        <AlertDescription>
+          You can add components and dependencies dynamically.
+        </AlertDescription>
+      </Alert>
+      <Alert>
+        <Terminal className="h-4 w-4" />
+        <AlertTitle>Heads up!</AlertTitle>
+        <AlertDescription>
+          You can add components to your app using the cli.
+        </AlertDescription>
+      </Alert>
       <h1 className="text-2xl font-bold text-blue-500">Schedule Planner</h1>
       <h2 className="text-xl font-semibold mt-4">Schedules</h2>
       {loading ? (
