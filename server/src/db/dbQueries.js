@@ -19,3 +19,12 @@ export const getAvailability = async () => {
         throw new Error("Error fetching availability: " + err.message);
     }
 };
+
+export const getEmployees = async () => {
+    try {
+        const [results] = await pool.query('SELECT id, employee_name FROM employees');
+        return results;
+    } catch (err) {
+        throw new Error("Error fetching employees: " + err.message);
+    }
+}
