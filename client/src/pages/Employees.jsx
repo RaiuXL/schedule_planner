@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchEmployees } from "@/services/api";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -26,8 +28,11 @@ const Employees = () => {
 
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Employees</h1>
+    <div>
+        <div>
+            <h1 className="text-2xl font-bold">Employees</h1>
+            <p>View and manage employees here.</p>
+        </div>
       <input
         type="text"
         placeholder="Search employees..."

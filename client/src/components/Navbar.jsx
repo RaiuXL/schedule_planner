@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-md p-4 flex items-center justify-between">
+    <nav className="shadow-md p-4 flex items-center justify-between">
       <div className="text-xl font-bold text-gray-900 dark:text-white">
         Schedule Planner
       </div>
@@ -19,10 +19,7 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Actions (Dark Mode & Login) */}
-      <div className="flex items-center space-x-4 text-gray-600">
-        <Button variant="outline" size="sm">Darkmode</Button>
-      </div>
+
     </nav>
   );
 };
