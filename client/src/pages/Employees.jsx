@@ -1,5 +1,16 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { fetchEmployees } from "@/services/api";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -20,56 +31,112 @@ const Employees = () => {
     getData();
   }, []);
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.employee_name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter employees based on the search query
+  const filteredEmployees = useMemo(
+    () =>
+      employees.filter((employee) =>
+        employee.employee_name.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [employees, searchQuery]
   );
+
+  // Define columns for TanStack Table
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "id",
+        header: "ID",
+      },
+      {
+        accessorKey: "employee_name",
+        header: "Name",
+      },
+      {
+        accessorKey: "roles",
+        header: "Roles",
+      },
+      {
+        accessorKey: "availability",
+        header: "Availability",
+      },
+    ],
+    []
+  );
+
+  // Initialize the table
+  const table = useReactTable({
+    data: filteredEmployees,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
 
 
   return (
-    <div>
-      <div>
+    <div className="p-6">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold">Employees</h1>
         <p>View and manage employees here.</p>
       </div>
 
-      <input
-        type="text"
+      <Input
         placeholder="Search employees..."
-        className="border px-4 py-2 rounded w-full mb-4"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        className="border px-4 py-2 rounded w-full mb-4"
       />
 
       {loading ? (
         <p>Loading employees...</p>
       ) : filteredEmployees.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border px-4 py-2">ID</th>
-                <th className="border px-4 py-2">Name</th>
-                <th className="border px-4 py-2">Roles</th>
-                <th className="border px-4 py-2">Availability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEmployees.map((employee) => (
-                <tr key={employee.id} className="hover:bg-gray-5">
-                  <td className="border px-4 py-2">{employee.id}</td>
-                  <td className="border px-4 py-2">{employee.employee_name}</td>
-                  <td className="border px-4 py-2">{employee.roles}</td>
-                  <td className="border px-4 py-2">{employee.availability}</td>
-
-                </tr>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <p className="text-red-500">No employees found.</p>
       )}
-
     </div>
   );
 
