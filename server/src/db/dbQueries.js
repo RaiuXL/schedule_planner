@@ -1,28 +1,19 @@
 import { pool } from './dbConnect.js';
 
-// Function to get schedules
-export const getSchedules = async () => {
-    try {
-        const [results] = await pool.query('SELECT id, employee_name FROM employees');
-        return results;
-    } catch (err) {
-        throw new Error("Error fetching schedules: " + err.message);
-    }
-};
-
-// Function to get employee availability
-export const getAvailability = async () => {
-    try {
-        const [results] = await pool.query('SELECT employee_id, available_day FROM employee_availability');
-        return results;
-    } catch (err) {
-        throw new Error("Error fetching availability: " + err.message);
-    }
-};
-
+// Function to get employees
 export const getEmployees = async () => {
     try {
-        const [results] = await pool.query('SELECT id, employee_name FROM employees');
+        const [results] = await pool.query(`
+            SELECT 
+                e.id,
+                e.employee_name,
+                GROUP_CONCAT(DISTINCT r.role_name SEPARATOR ', ') AS roles,
+                GROUP_CONCAT(DISTINCT ea.available_day SEPARATOR ', ') AS availability
+            FROM employees e
+            LEFT JOIN employee_roles er ON e.id = er.employee_id
+            LEFT JOIN roles r ON er.role_id = r.id
+            LEFT JOIN employee_availability ea ON e.id = ea.employee_id
+            GROUP BY e.id, e.employee_name;`);
         return results;
     } catch (err) {
         throw new Error("Error fetching employees: " + err.message);

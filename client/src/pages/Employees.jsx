@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { fetchEmployees } from "@/services/api";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
@@ -29,10 +27,11 @@ const Employees = () => {
 
   return (
     <div>
-        <div>
-            <h1 className="text-2xl font-bold">Employees</h1>
-            <p>View and manage employees here.</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">Employees</h1>
+        <p>View and manage employees here.</p>
+      </div>
+
       <input
         type="text"
         placeholder="Search employees..."
@@ -40,6 +39,7 @@ const Employees = () => {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
+
       {loading ? (
         <p>Loading employees...</p>
       ) : filteredEmployees.length > 0 ? (
@@ -49,6 +49,8 @@ const Employees = () => {
               <tr>
                 <th className="border px-4 py-2">ID</th>
                 <th className="border px-4 py-2">Name</th>
+                <th className="border px-4 py-2">Roles</th>
+                <th className="border px-4 py-2">Availability</th>
               </tr>
             </thead>
             <tbody>
@@ -56,6 +58,9 @@ const Employees = () => {
                 <tr key={employee.id} className="hover:bg-gray-50">
                   <td className="border px-4 py-2">{employee.id}</td>
                   <td className="border px-4 py-2">{employee.employee_name}</td>
+                  <td className="border px-4 py-2">{employee.roles}</td>
+                  <td className="border px-4 py-2">{employee.availability}</td>
+
                 </tr>
               ))}
             </tbody>
@@ -64,8 +69,10 @@ const Employees = () => {
       ) : (
         <p className="text-red-500">No employees found.</p>
       )}
+
     </div>
   );
+
 };
 
 export default Employees;
