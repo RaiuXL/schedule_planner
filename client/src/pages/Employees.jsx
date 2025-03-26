@@ -55,7 +55,7 @@ const Employees = () => {
             </thead>
             <tbody>
               {filteredEmployees.map((employee) => (
-                <tr key={employee.id} className="hover:bg-gray-50">
+                <tr key={employee.id} className="hover:bg-gray-5">
                   <td className="border px-4 py-2">{employee.id}</td>
                   <td className="border px-4 py-2">{employee.employee_name}</td>
                   <td className="border px-4 py-2">{employee.roles}</td>
