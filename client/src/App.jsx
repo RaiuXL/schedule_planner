@@ -7,7 +7,7 @@ import NotFound from "./pages/NotFound.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]">
       <Navbar />
       <div className="flex-1 w-full flex flex-col items-center px-6">
         <div className="w-full max-w-screen-xl">
@@ -20,7 +20,7 @@ function App() {
         </div>
       </div>
     </div>
-  ); 
+  );
 }
 
 export default App;

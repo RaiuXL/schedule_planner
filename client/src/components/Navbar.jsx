@@ -1,21 +1,19 @@
 import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
   return (
-    <nav className="shadow-md p-4 flex items-center justify-between">
-      <div className="text-xl font-bold dark:text-white">
+    <nav className="p-4 flex items-center justify-between">
+      <div>
         Schedule Planner
       </div>
       <div className="hidden md:flex space-x-6">
-        <Link to="/" className="dark:text-gray-300 hover:text-black dark:hover:text-white transition">
-          Dashboard
-        </Link>
-        <Link to="/employees" className="dark:text-gray-300 hover:text-black dark:hover:text-white transition">
-          Employees
-        </Link>
-        <Link to="/schedule" className="dark:text-gray-300 hover:text-black dark:hover:text-white transition">
-          Schedules
-        </Link>
+        <Link to="/">Dashboard</Link>
+        <Link to="/employees">Employees</Link>
+        <Link to="/schedule">Schedules</Link>
+      </div>
+      <div>
+        <ThemeToggle />
       </div>
     </nav>
   );
