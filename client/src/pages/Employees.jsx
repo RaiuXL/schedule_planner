@@ -2,91 +2,38 @@ import React, { useState, useEffect, useMemo } from "react";
 import { fetchEmployees } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-
-
-const AddEmployeeSheet = ({ onEmployeeeAdded }) => {
-  const [open, setOpen] = useState(false);
-  const [employeeName, setEmployeeName] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState([]);
-  const [selectedDays, setSelectedDays] = useState([]);
-
-  // Define your available roles and days
-  const roles = ["Manager", "Med Tech", "Aide", "Security"];
-
-  const daysInWeek = [
-    { label: "Sun", value: "Sunday" },
-    { label: "M", value: "Monday" },
-    { label: "T", value: "Tuesday" },
-    { label: "W", value: "Wednesday" },
-    { label: "Th", value: "Thursday" },
-    { label: "F", value: "Friday" },
-    { label: "Sat", value: "Saturday" },
-  ];
-
-  const toggleRole = (role) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
-    );
-  };
-
-  const toggleDay = (dayValue) => {
-    setSelectedDays((prev) =>
-      prev.includes(dayValue) ? prev.filter((d) => d !== dayValue) : [...prev, dayValue]
-    );
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Build payload
-    const payload = {
-      employee_name: employeeName,
-      roles: selectedRoles,
-      availability: selectedDays,
-    };
-
-    try {
-      // Make your API POST call here (using fetch or axios)
-      // Example:
-      // await fetch("/api/employees", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      console.log("New employee payload:", payload);
-      // Reset form and close sheet
-      setEmployeeName("");
-      setSelectedRoles([]);
-      setSelectedDays([]);
-      setOpen(false);
-      if (onEmployeeAdded) onEmployeeAdded();
-    } catch (error) {
-      console.error("Error adding employee:", error);
-    }
-  };
-
-}
+import { ChevronDown } from "lucide-react";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose, SheetFooter } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+const daysInWeek = [
+  { label: "Sun", value: "Sunday" },
+  { label: "M", value: "Monday" },
+  { label: "T", value: "Tuesday" },
+  { label: "W", value: "Wednesday" },
+  { label: "Th", value: "Thursday" },
+  { label: "F", value: "Friday" },
+  { label: "Sat", value: "Saturday" },
+];
+const roles = ["Aide", "Med Tech", "Manager", "Security"];
+const shifts = ["NOC", "AM", "EVE"];
 
 const Employees = () => {
+  // 1.State
   const [employees, setEmployees] = useState([]);
+  const [form, setForm] = useState({ name: "", roles: [], availability: {} });
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [columnVisibility, setColumnVisibility] = useState({});
+  const [employeeName, setEmployeeName] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [availability, setAvailability] = useState({});
 
-  // At the top of your Employees.jsx file, before you use it:
-  const daysInWeek = [
-    { label: "Sun", value: "Sunday" },
-    { label: "M", value: "Monday" },
-    { label: "T", value: "Tuesday" },
-    { label: "W", value: "Wednesday" },
-    { label: "Th", value: "Thursday" },
-    { label: "F", value: "Friday" },
-    { label: "Sat", value: "Saturday" },
-  ];
-
+  // 2.Effects
   useEffect(() => {
     async function getData() {
       try {
@@ -101,7 +48,7 @@ const Employees = () => {
     getData();
   }, []);
 
-  // Filter employees based on the search query
+  // 3.Dervied State
   const filteredEmployees = useMemo(
     () =>
       employees.filter((employee) =>
@@ -109,8 +56,6 @@ const Employees = () => {
       ),
     [employees, searchQuery]
   );
-
-  // Define columns for the table
   const columns = useMemo(
     () => [
       { accessorKey: "id", header: "ID" },
@@ -121,7 +66,47 @@ const Employees = () => {
     []
   );
 
-  // Initialize the table with column visibility state
+  // 4.Handlers
+  const toggleRole = (role) => {
+    setSelectedRoles((prev) =>
+      prev.includes(role)
+        ? prev.filter((r) => r !== role)
+        : [...prev, role]
+    );
+  };
+  const toggleAvailability = (day, shift) => {
+    setAvailability((prev) => {
+      const currentShifts = prev[day] || [];
+      if (currentShifts.includes(shift)) {
+        return {
+          ...prev,
+          [day]: currentShifts.filter((s) => s !== shift),
+        };
+      } else {
+        return {
+          ...prev,
+          [day]: [...currentShifts, shift],
+        };
+      }
+    });
+  };
+  const handleAddEmployee = async (e) => {
+    e.preventDefault();
+
+    const employeeData = {
+      name: employeeName,
+      roles: selectedRoles,
+      availability: availability,
+    };
+    console.log("Submitted Data:", JSON.stringify(employeeData, null, 2));
+    if (!employeeName || selectedRoles.length === 0) {
+      alert("Please enter a name and select at least one role.");
+      return;
+    }
+
+  };
+
+  // 5.Table Instance
   const table = useReactTable({
     data: filteredEmployees,
     columns,
@@ -130,23 +115,38 @@ const Employees = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // 6.Conditional early returns
+  if (loading) {
+    return <p>Loading employees...</p>;
+  }
+
+  if (!filteredEmployees.length) {
+    return <p className="text-center text-muted-foreground mt-6">No employees found.</p>;
+  }
+
+  // 7.JSX
   return (
     <div className="p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
 
+        {/* Title */}
         <div className="mb-4">
           <h1 className="text-2xl font-bold">Employees</h1>
           <p>View and manage employees here.</p>
         </div>
 
         <div className="flex items-center space-x-4 mb-4">
+
+          {/* Search for Employee */}
           <Input
+            id="searchEmployee"
             placeholder="Search employees..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="px-4 py-2 rounded flex-1"
           />
 
+          {/* Dropdown Column Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Columns <ChevronDown /></Button>
@@ -167,10 +167,17 @@ const Employees = () => {
           </DropdownMenu>
 
           <Sheet>
+
+            {/* Add Employee Button */}
             <SheetTrigger asChild>
-              <Button className="bg-success text-success-foreground hover:bg-success/80 dark:hover:bg-success/80 dark:bg-success dark:text-success-foreground">Add Employee</Button>
+              <Button className="bg-success text-success-foreground hover:bg-success/80 dark:hover:bg-success/80 dark:bg-success dark:text-success-foreground">
+                Add Employee
+              </Button>
             </SheetTrigger>
+
             <SheetContent className="sheet-content-custom shadow-md">
+
+              {/* Sheet Header */}
               <SheetHeader>
                 <SheetTitle>Add a new employee</SheetTitle>
                 <SheetDescription>
@@ -178,132 +185,145 @@ const Employees = () => {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="grid gap-5 px-5 py-4">
-
-                <div className="grid grid-cols-4 gap-2">
-                  <Label htmlFor="name" className="text-right col-span-1">Name</Label>
-                  <Input id="name" className="col-span-3" />
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 items-center">
-                  <Label htmlFor="role" className="text-right col-span-1">Role</Label>
-                  <div className="col-span-3 grid grid-cols-2 gap-2">
-                    <Button size="sm" className="w-full">Aide</Button>
-                    <Button size="sm" className="w-full">Med Tech</Button>
-                    <Button size="sm" className="w-full">Manager</Button>
-                    <Button size="sm" className="w-full">Security</Button>
+              {/* The FORM */}
+              <form onSubmit={handleAddEmployee} className="flex flex-col h-full">
+                <div className="grid gap-5 px-5 py-4">
+                  {/* Name */}
+                  <div className="grid grid-cols-4 gap-2">
+                    <Label htmlFor="name" className="text-right col-span-1">Name</Label>
+                    <Input id="name" name="name" autoComplete="name" className="col-span-3" value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
+                  </div>
+                  {/* Role */}
+                  <fieldset className="grid grid-cols-4 gap-2">
+                    <div className="col-span-1 flex item-center">
+                      <legend className="flex items-center gap-2 text-sm leading-none font-medium select-none text-left col-span-1">Role</legend>
+                    </div>
+                    <div className="col-span-3 grid grid-cols-2 gap-2">
+                      {roles.map((role) => (
+                        <label
+                          key={role}
+                          className={`w-full cursor-pointer border rounded-sm px-2 py-1 text-center transition-colors
+                          ${selectedRoles.includes(role)
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-muted text-muted-foreground border-input"
+                            }
+                        `}
+                        >
+                          <input
+                            type="checkbox"
+                            name="roles"
+                            value={role}
+                            checked={selectedRoles.includes(role)}
+                            onChange={() => toggleRole(role)}
+                            className="sr-only"
+                          />
+                          {role}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {/* Availability */}
+                  <fieldset className="grid grid-cols-7 gap-2 border-0 p-0 m-0">
+                    <div className="col-span-3 flex items-center">
+                      <legend className="text-sm leading-none font-medium select-none text-left">
+                        Availability
+                      </legend>
+                    </div>
+                    <div className="col-span-4 flex flex-col gap-2">
+                      {daysInWeek.map((day) => (
+                        <div key={day.value} className="grid grid-cols-5 items-center gap-4">
+                          <div className="col-span-1">
+                            <Badge variant="secondary" className="w-14 justify-center">
+                              {day.label}
+                            </Badge>
+                          </div>
+                          <div className="col-span-4 flex items-center gap-4">
+                            {shifts.map((shift) => (
+                              <div key={shift} className="flex items-center space-x-1">
+                                <Checkbox
+                                  id={`${day.value}-${shift}`}
+                                  name={`availability[${day.value}]`}
+                                  checked={availability[day.value]?.includes(shift) || false}
+                                  onCheckedChange={() => toggleAvailability(day.value, shift)}
+                                />
+                                <label htmlFor={`${day.value}-${shift}`} className="text-sm">
+                                  {shift}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {/* Max Hours */}
+                  <div className="grid grid-cols-4 gap-2 items-center">
+                    <Label htmlFor="max-hours" className="text-right col-span-1">
+                      Max hours (Ex. 40)
+                    </Label>
+                    <Input
+                      id="max-hours"
+                      type="number"
+                      min={0}
+                      className="w-20"
+                    />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2">
-                  <Label htmlFor="availability" className="text-right col-span-3 pt-2">Availability</Label>
-                  <div className="col-span-4 flex flex-col gap-2">
-                    {daysInWeek.map((day) => (
-                      <div key={day.value} className="grid grid-cols-5 items-center gap-4">
-                        <div className="col-span-1">
-                          <Badge variant="secondary" className="w-14 justify-center">
-                            {day.label}
-                          </Badge>
-                        </div>
-
-                        <div className="col-span-4 flex items-center gap-4">
-                          {["NOC", "AM", "EVE"].map((shift) => (
-                            <div key={shift} className="flex items-center space-x-1">
-                              <Checkbox
-                                id={`${day.value}-${shift}`}
-                              // Your logic here for state management
-                              // checked={...}
-                              // onCheckedChange={...}
-                              />
-                              <label
-                                htmlFor={`${day.value}-${shift}`}
-                                className="text-sm"
-                              >
-                                {shift}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 items-center">
-                  <Label htmlFor="max-hours" className="text-right col-span-1">
-                    Max hours (Ex. 40)
-                  </Label>
-                  <Input
-                    id="max-hours"
-                    type="number"
-                    min={0}
-                    className="w-20"
-                  />
-                </div>
-
-              </div>
-
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Button className="bg-success text-success-foreground hover:bg-success/80 dark:hover:bg-success/80 dark:bg-success dark:text-success-foreground">Save changes</Button>
-                </SheetClose>
-              </SheetFooter>
+                <SheetFooter className="px-5 pb-5">
+                  <SheetClose asChild>
+                    <Button
+                      type="submit"
+                    >
+                      Save changes
+                    </Button>
+                  </SheetClose>
+                </SheetFooter>
+              </form>
 
             </SheetContent>
           </Sheet>
 
-
         </div>
       </div>
 
-      {
-        loading ? (
-          <p>Loading employees...</p>
-        ) : filteredEmployees.length > 0 ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    ))}
-                  </TableRow>
+      {/* Loading Employee Table */}
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <p>No employees found.</p>
-        )
-      }
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
     </div >
-
   );
-
 };
 
 export default Employees;
