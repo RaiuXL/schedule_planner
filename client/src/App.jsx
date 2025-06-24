@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Employees from "./pages/Employees.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import { Toaster } from 'sonner';
 
 function App() {
   return (
@@ -19,7 +20,9 @@ function App() {
           </Routes>
         </div>
       </div>
+      <Toaster richColors closeButton />
     </div>
+
   );
 }
 

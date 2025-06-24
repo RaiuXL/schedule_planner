@@ -1,4 +1,3 @@
-// index.js
 import express from 'express';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
@@ -12,6 +11,7 @@ const { PORT } = process.env;
 // Create Express app
 const app = express();
 app.use(cors());
+app.use(express.json()); // << needed to parse JSON in requests
 // Use routes
 app.use('/api', scheduleRoutes);
 
