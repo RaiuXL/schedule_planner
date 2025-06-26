@@ -26,3 +26,17 @@ export async function addEmployee(employeeData) {
         throw error;
     }
 }
+
+export async function deleteEmployee(id) {
+    try {
+        const response = await fetch(`http://localhost:7070/api/employees/${id}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) throw new Error("Failed to delete employee");
+        return true;
+    } catch (err) {
+        console.error("Error deleting employee:", err);
+        throw err;
+    }
+}

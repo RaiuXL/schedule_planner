@@ -8,7 +8,7 @@ import { formSchema } from "@/features/employees/EmployeesSchema";
 import { roles, shifts, daysInWeek } from "@/features/employees/EmployeesConstants";
 
 import EmployeeForm from "@/features/employees/EmployeesForm";
-import { employeeColumns } from "./EmployeesColumns";
+import { employeeColumns as getEmployeeColumns } from "./EmployeesColumns";
 
 import { fetchEmployees, addEmployee } from "@/services/api";
 
@@ -29,6 +29,11 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false)
+
+  const handleDeleteRefresh = async () => {
+    const updated = await fetchEmployees();
+    onEmployeeAdded(Array.isArray(updated.employees) ? updated.employees : []);
+  };
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,7 +75,7 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
   const table = useReactTable({
     data: filteredEmployees,
-    columns: employeeColumns,
+    columns: getEmployeeColumns(handleDeleteRefresh),
     getCoreRowModel: getCoreRowModel(),
   });
 

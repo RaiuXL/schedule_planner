@@ -1,7 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { deleteEmployee } from "@/services/api";
 
-export const employeeColumns = [
+export const employeeColumns = (onEmployeeDeleted) => [
     {
         accessorKey: "name",
         header: "Name",
@@ -45,14 +58,36 @@ export const employeeColumns = [
         id: "actions",
         cell: ({ row }) => {
             const employee = row.original;
+            const handleDelete = async () => {
+                try {
+                    await deleteEmployee(employee.id);
+                    toast.success(`Deleted ${employee.name}`);
+                    onEmployeeDeleted?.(); // trigger parent to refresh
+                } catch {
+                    toast.error(`Failed to delete ${employee.name}`);
+                }
+            };
 
             return (
-                <button
-                    onClick={() => console.log("Delete", employee.id)}
-                    className="text-destructive hover:text-destructive/80 transition-colors"
-                >
-                    <X className="w-4 h-4" />
-                </button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <button className="text-destructive hover:text-destructive/80 transition-colors">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Delete {employee.name}?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action is permanent and cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             );
         },
     }

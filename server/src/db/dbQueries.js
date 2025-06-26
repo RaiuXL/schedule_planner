@@ -25,3 +25,22 @@ export const insertEmployee = async ({ name, roles, availability }) => {
       throw new Error("Error inserting employee: " + err.message);
   }
 };
+
+// DELETE employee from table
+export const deleteEmployee = async (id) => {
+    try {
+      const [result] = await pool.query(`
+        DELETE FROM employees WHERE id = ?
+      `, [id]);
+  
+      return result.affectedRows > 0; // true if something was deleted
+    } catch (err) {
+      throw new Error("Error deleting employee: " + err.message);
+    }
+};
+
+export const getEmployeeById = async (id) => {
+    const query = "SELECT * FROM employees WHERE id = ?";
+    const [rows] = await pool.query(query, [id]);
+    return rows[0] || null;
+  };
