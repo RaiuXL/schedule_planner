@@ -44,3 +44,18 @@ export const getEmployeeById = async (id) => {
     const [rows] = await pool.query(query, [id]);
     return rows[0] || null;
   };
+
+  // UPDATE employee in the table
+export const updateEmployee = async (id, { name, roles, availability }) => {
+  try {
+    const [result] = await pool.query(`
+      UPDATE employees
+      SET name = ?, roles = ?, availability = ?
+      WHERE id = ?
+    `, [name, roles, JSON.stringify(availability), id]);
+
+    return result.affectedRows > 0; // true if a row was updated
+  } catch (err) {
+    throw new Error("Error updating employee: " + err.message);
+  }
+};

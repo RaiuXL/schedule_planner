@@ -1,5 +1,5 @@
 // controllers/scheduleController.js
-import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById } from '../db/dbQueries.js';
+import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById, updateEmployee } from '../db/dbQueries.js';
 import chalk from 'chalk';
 
 // Fetch all information of employees
@@ -69,5 +69,37 @@ export const addEmployee = async (req, res) => {
     } catch (error) {
       console.error("Error in removeEmployee:", error);
       return res.status(500).json({ message: "Server error while deleting employee" });
+    }
+  };
+
+  export const editEmployee = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, roles, availability } = req.body;
+  
+      if (!name || typeof roles !== 'string' || typeof availability !== 'object') {
+        console.warn("Invalid update data received:", req.body);
+        return res.status(400).json({ message: "Invalid input data" });
+      }
+  
+      const updated = await updateEmployee(id, { name, roles, availability });
+  
+      if (!updated) {
+        return res.status(404).json({ message: "Employee not found or update failed" });
+      }
+  
+      console.log(chalk.blue("Updated employee:"), { id, name, roles, availability });
+  
+      return res.status(200).json({
+        message: "Employee updated successfully",
+        employee: { id, name, roles, availability }
+      });
+  
+    } catch (err) {
+      console.error(chalk.red("Error updating employee:", err));
+      return res.status(500).json({
+        message: "Server error while updating employee",
+        error: err.message
+      });
     }
   };
