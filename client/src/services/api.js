@@ -40,3 +40,19 @@ export async function deleteEmployee(id) {
         throw err;
     }
 }
+
+export async function updateEmployee(id, updatedData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) throw new Error("Failed to update employee");
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating employee:", error);
+        throw error;
+    }
+}

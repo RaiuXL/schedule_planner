@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Pencil } from "lucide-react";
+import { toast } from "sonner";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -11,10 +12,75 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
 import { deleteEmployee } from "@/services/api";
 
-export const employeeColumns = (onEmployeeDeleted) => [
+// Render role badges
+const RoleCell = ({ roles }) => {
+    const roleList = roles?.split(',') || [];
+    return (
+        <div className="flex gap-1 flex-wrap">
+            {roleList.map(role => <Badge key={role}>{role}</Badge>)}
+        </div>
+    );
+};
+
+// Render availability by day
+const AvailabilityCell = ({ availability }) => {
+    if (!availability || typeof availability === 'string') return null;
+    return (
+        <div className="text-xs space-y-1">
+            {Object.entries(availability).map(([day, shifts]) =>
+                shifts.length > 0 ? (
+                    <div key={day}>
+                        <strong>{day}:</strong> {shifts.join(', ')}
+                    </div>
+                ) : null
+            )}
+        </div>
+    );
+};
+
+// Action buttons for edit/delete
+const ActionsCell = ({ employee, onEdit, onDelete }) => {
+    const handleDelete = async () => {
+        try {
+            await deleteEmployee(employee.id);
+            toast.success(`Deleted ${employee.name}`);
+            onDelete?.();
+        } catch {
+            toast.error(`Failed to delete ${employee.name}`);
+        }
+    };
+
+    return (
+        <div className="flex gap-2 items-center">
+            <button onClick={() => onEdit?.(employee)} className="text-primary hover:text-primary/80 transition-colors" title="Edit employee">
+                <Pencil className="w-4 h-4" />
+            </button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <button className="text-destructive hover:text-destructive/80 transition-colors">
+                        <X className="w-4 h-4" />
+                    </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {employee.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action is permanent and cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+};
+
+export const employeeColumns = (onDelete, onEdit) => [
     {
         accessorKey: "name",
         header: "Name",
@@ -22,73 +88,22 @@ export const employeeColumns = (onEmployeeDeleted) => [
     {
         accessorKey: "roles",
         header: "Roles",
-        cell: ({ row }) => {
-            const roles = row.original.roles?.split(',') || [];
-            return (
-                <div className="flex gap-1 flex-wrap">
-                    {roles.map(role => (
-                        <Badge key={role}>{role}</Badge>
-                    ))}
-                </div>
-            );
-        }
+        cell: ({ row }) => <RoleCell roles={row.original.roles} />,
     },
     {
         accessorKey: "availability",
         header: "Availability",
-        cell: ({ row }) => {
-            const availability = row.original.availability;
-            if (!availability || typeof availability === 'string') return null;
-
-            return (
-                <div className="text-xs space-y-1">
-                    {Object.entries(availability).map(([day, shifts]) =>
-                        shifts.length > 0 ? (
-                            <div key={day}>
-                                <strong>{day}:</strong> {shifts.join(', ')}
-                            </div>
-                        ) : null
-                    )}
-                </div>
-            );
-        }
+        cell: ({ row }) => <AvailabilityCell availability={row.original.availability} />,
     },
     {
         header: "Actions",
         id: "actions",
-        cell: ({ row }) => {
-            const employee = row.original;
-            const handleDelete = async () => {
-                try {
-                    await deleteEmployee(employee.id);
-                    toast.success(`Deleted ${employee.name}`);
-                    onEmployeeDeleted?.(); // trigger parent to refresh
-                } catch {
-                    toast.error(`Failed to delete ${employee.name}`);
-                }
-            };
-
-            return (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <button className="text-destructive hover:text-destructive/80 transition-colors">
-                            <X className="w-4 h-4" />
-                        </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Delete {employee.name}?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action is permanent and cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            );
-        },
+        cell: ({ row }) => (
+            <ActionsCell
+                employee={row.original}
+                onEdit={onEdit}
+                onDelete={onDelete}
+            />
+        ),
     }
 ];

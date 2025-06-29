@@ -1,19 +1,17 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
-// Form validation
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "@/features/employees/EmployeesSchema";
-// Also Form, helps provide the shifts, roles and days of the week
+
 import { roles, shifts, daysInWeek } from "@/features/employees/EmployeesConstants";
-
 import EmployeeForm from "@/features/employees/EmployeesForm";
-import { employeeColumns as getEmployeeColumns } from "./EmployeesColumns";
+import { employeeColumns } from "./EmployeesColumns";
 
-import { fetchEmployees, addEmployee } from "@/services/api";
-
+import { fetchEmployees, addEmployee, updateEmployee } from "@/services/api";
 import { toast } from "sonner";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -29,6 +27,7 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [editingEmployee, setEditingEmployee] = useState(null);
 
   const handleDeleteRefresh = async () => {
     const updated = await fetchEmployees();
@@ -43,6 +42,18 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
       availability: {},
     },
   });
+
+  useEffect(() => {
+    if (editingEmployee) {
+      form.reset({
+        name: editingEmployee.name,
+        roles: editingEmployee.roles.split(","),
+        availability: editingEmployee.availability,
+      });
+    } else {
+      form.reset({ name: "", roles: [], availability: {} });
+    }
+  }, [editingEmployee, form]);
 
   const filteredEmployees = useMemo(
     () =>
@@ -60,22 +71,36 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
     };
 
     try {
-      await addEmployee(payload);
-      toast.success("Employee added!");
+      if (editingEmployee) {
+        await updateEmployee(editingEmployee.id, payload);
+        toast.success("Employee updated!");
+      } else {
+        await addEmployee(payload);
+        toast.success("Employee added!");
+      }
+
       form.reset();
       setSheetOpen(false);
+      setEditingEmployee(null);
 
       const updatedData = await fetchEmployees();
       onEmployeeAdded(Array.isArray(updatedData.employees) ? updatedData.employees : []);
     } catch (err) {
-      toast.error("Failed to add employee.");
+      toast.error("Failed to save employee.");
       console.error("Error submitting employee:", err);
     }
+
   };
 
   const table = useReactTable({
     data: filteredEmployees,
-    columns: getEmployeeColumns(handleDeleteRefresh),
+    columns: employeeColumns(
+      handleDeleteRefresh,
+      (employee) => {
+        setEditingEmployee(employee);     // sets data to prefill
+        setSheetOpen(true);              // opens the form
+      }
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -96,17 +121,20 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
             className="max-w-sm w-full md:w-auto"
           />
 
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <Sheet open={sheetOpen} onOpenChange={(open) => {
+            setSheetOpen(open);
+            if (!open) setEditingEmployee(null);
+          }}>
             <SheetTrigger asChild>
               <Button className="bg-success text-success-foreground hover:bg-success/80">
-                Add Employee
+                {editingEmployee ? "Edit Employee" : "Add Employee"}
               </Button>
             </SheetTrigger>
             <SheetContent className="sheet-content-custom shadow-md">
               <SheetHeader>
-                <SheetTitle>Add a new employee</SheetTitle>
+                <SheetTitle>{editingEmployee ? "Edit employee" : "Add a new employee"}</SheetTitle>
                 <SheetDescription>
-                  Fill in the details and click "Submit" to add them.
+                  Fill in the details and click "Submit" to {editingEmployee ? "update" : "add"} them.
                 </SheetDescription>
               </SheetHeader>
               <EmployeeForm
@@ -124,7 +152,6 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
       <div className="overflow-x-auto">
         <div className="max-h-[650px] overflow-y-auto border rounded-md">
-
           <table className="min-w-full table-auto">
             <thead className="bg-background sticky top-0 z-10">
               {table.getHeaderGroups().map((group) => (
@@ -155,7 +182,7 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={employeeColumns.length} className="text-center py-6">
+                  <td colSpan={table.getAllColumns().length} className="text-center py-6">
                     No employees found.
                   </td>
                 </tr>
