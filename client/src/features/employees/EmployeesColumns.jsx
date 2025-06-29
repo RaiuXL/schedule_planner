@@ -13,6 +13,8 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { deleteEmployee } from "@/services/api";
+import { daysInWeek } from "@/features/employees/EmployeesConstants";
+
 
 // Render role badges
 const RoleCell = ({ roles }) => {
@@ -24,18 +26,19 @@ const RoleCell = ({ roles }) => {
     );
 };
 
-// Render availability by day
 const AvailabilityCell = ({ availability }) => {
-    if (!availability || typeof availability === 'string') return null;
+    if (!availability || typeof availability === "string") return null;
+
     return (
         <div className="text-xs space-y-1">
-            {Object.entries(availability).map(([day, shifts]) =>
-                shifts.length > 0 ? (
+            {daysInWeek.map(({ value: day }) => {
+                const shifts = availability[day] || [];
+                return shifts.length > 0 ? (
                     <div key={day}>
-                        <strong>{day}:</strong> {shifts.join(', ')}
+                        <strong>{day}:</strong> {shifts.join(", ")}
                     </div>
-                ) : null
-            )}
+                ) : null;
+            })}
         </div>
     );
 };
