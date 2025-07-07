@@ -59,3 +59,22 @@ export const updateEmployee = async (id, { name, roles, availability }) => {
     throw new Error("Error updating employee: " + err.message);
   }
 };
+
+// GET all schedules
+export const getSchedules = async () => {
+  const [rows] = await pool.query("SELECT id, name, created_at FROM schedules ORDER BY created_at DESC");
+  return rows;
+};
+
+// INSERT a new schedule
+export const insertSchedule = async ({ name }) => {
+  const [result] = await pool.query("INSERT INTO schedules (name) VALUES (?)", [name]);
+  return { id: result.insertId, name };
+};
+
+// DELETE schedule
+export const deleteSchedule = async (id) => {
+  const [result] = await pool.query("DELETE FROM schedules WHERE id = ?", [id]);
+  return result.affectedRows > 0;
+};
+

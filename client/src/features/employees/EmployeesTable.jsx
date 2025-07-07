@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [sheetOpen, setSheetOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
 
   const handleDeleteRefresh = async () => {

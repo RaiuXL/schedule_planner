@@ -1,5 +1,5 @@
 // controllers/scheduleController.js
-import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById, updateEmployee } from '../db/dbQueries.js';
+import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById, updateEmployee, getSchedules, insertSchedule, deleteSchedule } from '../db/dbQueries.js';
 import chalk from 'chalk';
 
 // Fetch all information of employees
@@ -103,3 +103,47 @@ export const addEmployee = async (req, res) => {
       });
     }
   };
+
+  // GET all schedules
+  export const fetchSchedules = async (req, res) => {
+    try {
+      const schedules = await getSchedules();
+      res.status(200).json({ schedules });
+    } catch (err) {
+      console.error("Error fetching schedules:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
+  // POST new schedule
+  export const addSchedule = async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name) return res.status(400).json({ message: "Schedule name is required" });
+  
+      const newSchedule = await insertSchedule({ name });
+      return res.status(201).json({ message: "Schedule created", schedule: newSchedule });
+    } catch (err) {
+      console.error("Error creating schedule:", err);
+      return res.status(500).json({ message: "Server error" }); // <--- add return here
+    }
+  };  
+  
+  // DELETE schedule
+  export const removeSchedule = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await deleteSchedule(id);
+  
+      if (!success) {
+        return res.status(404).json({ message: "Schedule not found" });
+      }
+  
+      return res.status(200).json({ message: "Schedule deleted", id });
+    } catch (err) {
+      console.error("Error deleting schedule:", err);
+      return res.status(500).json({ message: "Server error" }); // <--- add return here
+    }
+  };
+  
+  

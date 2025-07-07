@@ -11,6 +11,36 @@ export async function fetchEmployees() {
     }
 };
 
+export async function fetchSchedules() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/schedules`);
+        if (!response.ok) throw new Error("Failed to fetch schedules");
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching schedules:", error);
+        return [];
+      }
+}
+
+export async function deleteSchedule(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/schedules/${id}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete schedule");
+      }
+  
+      return await response.json(); // Optional: you can log or use this response
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+      throw error; // Let the UI handler catch it (e.g., for toast error)
+    }
+  }
+  
+
+
 export async function addEmployee(employeeData) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/employees`, {
