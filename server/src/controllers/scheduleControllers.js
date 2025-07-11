@@ -118,10 +118,8 @@ export const addEmployee = async (req, res) => {
   // POST new schedule
   export const addSchedule = async (req, res) => {
     try {
-      console.log("Received schedule body:", req.body); // <-- Debug
       const { name } = req.body;
       if (!name) return res.status(400).json({ message: "Schedule name is required" });
-  
       const newSchedule = await insertSchedule({ name });
       return res.status(201).json({ message: "Schedule created", schedule: newSchedule });
     } catch (err) {

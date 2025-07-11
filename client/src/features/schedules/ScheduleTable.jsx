@@ -11,6 +11,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -22,7 +23,6 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [newScheduleName, setNewScheduleName] = useState("");
 
     const handleDeleteRefresh = async () => {
         const updated = await fetchSchedules();
@@ -46,11 +46,11 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
         getCoreRowModel: getCoreRowModel(),
     });
 
-    const handleAddSchedule = async () => {
+    const handleAddSchedule = async (values) => {
         try {
-            const newSchedule = await addSchedule({ name: newScheduleName });
+            const newSchedule = await addSchedule(values)
             toast.success(`Schedule created ${newSchedule.schedule.name}`);
-            setNewScheduleName("");
+            form.reset();
             setDialogOpen(false);
             const updated = await fetchSchedules();
             onScheduleAdded(Array.isArray(updated.schedules) ? updated.schedules : []);
@@ -67,7 +67,6 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
     return (
 
         <div className="space-y-4">
-
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-2 md:space-y-0">
                 <div>
                     <h1 className="text-2xl font-bold">Schedules</h1>
@@ -90,22 +89,30 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Create New Schedule</DialogTitle>
+                                <DialogDescription>
+                                    Enter the name for your new monthly schedule.
+                                </DialogDescription>
                             </DialogHeader>
-                            <Input
-                                type="text"
-                                placeholder="Schedule Name"
-                                value={newScheduleName}
-                                onChange={(e) => setNewScheduleName(e.target.value)}
-                                className="mt-4"
-                            />
-                            <Button onClick={handleAddSchedule} className="mt-4 w-full">
-                                Submit
-                            </Button>
+                            <form onSubmit={form.handleSubmit(handleAddSchedule)}>
+                                <Input
+                                    type="text"
+                                    placeholder="Schedule Name"
+                                    {...form.register("name")}
+                                    className="mt-4"
+                                />
+                                {form.formState.errors.name && (
+                                    <p className="text-sm text-red-500 mt-1">
+                                        {form.formState.errors.name.message}
+                                    </p>
+                                )}
+                                <Button type="submit" className="mt-4 w-full">
+                                    Submit
+                                </Button>
+                            </form>
                         </DialogContent>
                     </Dialog>
                 </div>
             </div>
-
             <div className="overflow-x-auto">
                 <div className="max-h-[650px] overflow-y-auto border rounded-md">
                     <ScheduleTableBodyRenderer table={table} filteredSchedule={filteredSchedules} />
