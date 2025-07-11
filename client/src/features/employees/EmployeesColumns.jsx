@@ -15,7 +15,6 @@ import {
 import { deleteEmployee } from "@/services/api";
 import { daysInWeek } from "@/features/employees/EmployeesConstants";
 
-
 // Render role badges
 const RoleCell = ({ roles }) => {
     const roleList = roles?.split(',') || [];

@@ -62,7 +62,9 @@ export const scheduleColumns = (onDelete, onEdit) => [
         header: "Created At",
         cell: ({ row }) => {
             const rawDate = row.original.created_at;
-            const formattedDate = new Date(rawDate).toLocaleString(); // or .toLocaleDateString() for date only
+            const formattedDate = new Date(rawDate).toLocaleString("en-US", {
+                timeZone: "America/Los_Angeles", // Set your desired zone here
+            });
             return <span>{formattedDate}</span>;
         },
     },

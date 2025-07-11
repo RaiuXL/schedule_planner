@@ -1,8 +1,5 @@
-// External Libaries
 import React, { useState, useEffect } from "react";
-// App-specific
 import { fetchEmployees } from "@/services/api";
-// file import
 import EmployeesTable from "@/features/employees/EmployeesTable";
 
 const Employees = () => {

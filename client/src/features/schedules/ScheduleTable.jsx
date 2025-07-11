@@ -2,15 +2,27 @@ import React, { useState, useMemo } from "react";
 
 import { scheduleColumns } from "./ScheduleColumns";
 import ScheduleTableBodyRenderer from "./ScheduleTableBodyRenderer";
-import { fetchSchedules } from "@/services/api";
+import { fetchSchedules, addSchedule } from "@/services/api";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { scheduleSchema } from "./SchedulesSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const ScheduleTable = ({ data, onScheduleAdded }) => {
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [newScheduleName, setNewScheduleName] = useState("");
 
     const handleDeleteRefresh = async () => {
         const updated = await fetchSchedules();
@@ -28,9 +40,28 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
     const table = useReactTable({
         data: filteredSchedules,
         columns: scheduleColumns(
-            handleDeleteRefresh, () => { }
+            handleDeleteRefresh,
+            () => { }
         ),
         getCoreRowModel: getCoreRowModel(),
+    });
+
+    const handleAddSchedule = async () => {
+        try {
+            const newSchedule = await addSchedule({ name: newScheduleName });
+            toast.success(`Schedule created ${newSchedule.schedule.name}`);
+            setNewScheduleName("");
+            setDialogOpen(false);
+            const updated = await fetchSchedules();
+            onScheduleAdded(Array.isArray(updated.schedules) ? updated.schedules : []);
+        } catch (err) {
+            toast.error(`Failed to create schedule ${newSchedule.schedule.name}`);
+        }
+    };
+
+    const form = useForm({
+        resolver: zodResolver(scheduleSchema),
+        defaultValues: { name: "" },
     });
 
     return (
@@ -50,9 +81,28 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="max-w-sm w-full md:w-auto"
                     />
-                    <Button className="bg-success text-success-foreground hover:bg-success/80">
-                        Create Schedule
-                    </Button>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-success text-success-foreground hover:bg-success/80">
+                                Create Schedule
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create New Schedule</DialogTitle>
+                            </DialogHeader>
+                            <Input
+                                type="text"
+                                placeholder="Schedule Name"
+                                value={newScheduleName}
+                                onChange={(e) => setNewScheduleName(e.target.value)}
+                                className="mt-4"
+                            />
+                            <Button onClick={handleAddSchedule} className="mt-4 w-full">
+                                Submit
+                            </Button>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 

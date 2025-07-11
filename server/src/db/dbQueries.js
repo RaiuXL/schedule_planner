@@ -69,8 +69,10 @@ export const getSchedules = async () => {
 // INSERT a new schedule
 export const insertSchedule = async ({ name }) => {
   const [result] = await pool.query("INSERT INTO schedules (name) VALUES (?)", [name]);
-  return { id: result.insertId, name };
+  const response = { id: result.insertId, name };
+  return response;
 };
+
 
 // DELETE schedule
 export const deleteSchedule = async (id) => {

@@ -114,10 +114,11 @@ export const addEmployee = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
-  
+
   // POST new schedule
   export const addSchedule = async (req, res) => {
     try {
+      console.log("Received schedule body:", req.body); // <-- Debug
       const { name } = req.body;
       if (!name) return res.status(400).json({ message: "Schedule name is required" });
   
@@ -128,7 +129,7 @@ export const addEmployee = async (req, res) => {
       return res.status(500).json({ message: "Server error" }); // <--- add return here
     }
   };  
-  
+
   // DELETE schedule
   export const removeSchedule = async (req, res) => {
     try {

@@ -38,8 +38,22 @@ export async function deleteSchedule(id) {
       throw error; // Let the UI handler catch it (e.g., for toast error)
     }
   }
-  
 
+  export async function addSchedule(data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/schedules`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Error adding schedule:", error);
+        throw error;
+    }
+}
 
 export async function addEmployee(employeeData) {
     try {
