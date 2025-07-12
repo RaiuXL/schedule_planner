@@ -1,30 +1,25 @@
 import React from "react";
 import { flexRender } from "@tanstack/react-table";
 
-const EmployeeTableBodyRenderer = ({ table, filteredEmployees }) => {
+const GenericTableBodyRenderer = ({ table, filteredData, emptyMessage }) => {
     return (
         <table className="min-w-full table-auto">
             <thead className="bg-background sticky top-0 z-10">
-                {table.getHeaderGroups().map((group) => (
-                    <tr key={group.id} className="border-b">
-                        {group.headers.map((header) => (
+                {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id} className="border-b">
+                        {headerGroup.headers.map((header) => (
                             <th
                                 key={header.id}
                                 className="px-4 py-2 text-left font-medium bg-background"
                             >
-                                {header.isPlaceholder
-                                    ? null
-                                    : flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                    )}
+                                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                             </th>
                         ))}
                     </tr>
                 ))}
             </thead>
             <tbody>
-                {filteredEmployees.length > 0 ? (
+                {filteredData.length > 0 ? (
                     table.getRowModel().rows.map((row) => (
                         <tr key={row.id} className="even:bg-muted border-b">
                             {row.getVisibleCells().map((cell) => (
@@ -36,8 +31,11 @@ const EmployeeTableBodyRenderer = ({ table, filteredEmployees }) => {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={table.getAllColumns().length} className="text-center py-6">
-                            No employees found.
+                        <td
+                            colSpan={table.getAllColumns().length}
+                            className="text-center py-6"
+                        >
+                            {emptyMessage || "No data found."}
                         </td>
                     </tr>
                 )}
@@ -46,4 +44,4 @@ const EmployeeTableBodyRenderer = ({ table, filteredEmployees }) => {
     );
 };
 
-export default EmployeeTableBodyRenderer;
+export default GenericTableBodyRenderer;

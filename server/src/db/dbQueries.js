@@ -4,7 +4,7 @@ import { pool } from './dbConnect.js';
 export const getEmployees = async () => {
   try {
       const [results] = await pool.query(`
-          SELECT id, name, roles, availability FROM employees;
+          SELECT id, name, roles, availability FROM employees ORDER BY id DESC;
       `);
       return results;
   } catch (err) {

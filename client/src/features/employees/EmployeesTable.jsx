@@ -6,7 +6,7 @@ import { formSchema } from "@/features/employees/EmployeesSchema";
 
 import { employeeColumns } from "./EmployeesColumns";
 import EmployeeSheet from "./EmployeeSheet";
-import EmployeeTableBodyRenderer from "./EmployeeTableBodyRenderer";
+import GenericTableBodyRenderer from "@/features/shared/GenericTableBodyRenderer";
 
 import { fetchEmployees, addEmployee, updateEmployee } from "@/services/api";
 import { toast } from "sonner";
@@ -131,7 +131,11 @@ const EmployeesTable = ({ data, onEmployeeAdded }) => {
 
       <div className="overflow-x-auto">
         <div className="max-h-[650px] overflow-y-auto border rounded-md">
-          <EmployeeTableBodyRenderer table={table} filteredEmployees={filteredEmployees} />
+          <GenericTableBodyRenderer
+            table={table}
+            filteredData={filteredEmployees}
+            emptyMessage="No employees found."
+          />
         </div>
       </div>
 

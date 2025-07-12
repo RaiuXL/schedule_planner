@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 
 import { scheduleColumns } from "./ScheduleColumns";
-import ScheduleTableBodyRenderer from "./ScheduleTableBodyRenderer";
+import GenericTableBodyRenderer from "@/features/shared/GenericTableBodyRenderer";
 import { fetchSchedules, addSchedule } from "@/services/api";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
@@ -115,7 +115,11 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
             </div>
             <div className="overflow-x-auto">
                 <div className="max-h-[650px] overflow-y-auto border rounded-md">
-                    <ScheduleTableBodyRenderer table={table} filteredSchedule={filteredSchedules} />
+                    <GenericTableBodyRenderer
+                        table={table}
+                        filteredData={filteredSchedules}
+                        emptyMessage="No schedules found."
+                    />
                 </div>
             </div>
 
