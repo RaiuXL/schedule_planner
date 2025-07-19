@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { X, Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/features/shared/toastHelpers";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -47,10 +47,10 @@ const ActionsCell = ({ employee, onEdit, onDelete }) => {
     const handleDelete = async () => {
         try {
             await deleteEmployee(employee.id);
-            toast.success(`Deleted ${employee.name}`);
+            showToast.success("Deleted", employee.name);
             onDelete?.();
         } catch {
-            toast.error(`Failed to delete ${employee.name}`);
+            showToast.error("Failed to delete", employee.name);
         }
     };
 

@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:7070"; // Change if needed
+const API_BASE_URL = "http://localhost:7070";
 
 export async function fetchEmployees() {
     try {
@@ -94,9 +94,9 @@ export async function deleteSchedule(id) {
         throw new Error("Failed to delete schedule");
       }
   
-      return await response.json(); // Optional: you can log or use this response
+      return await response.json();
     } catch (error) {
       console.error("Error deleting schedule:", error);
-      throw error; // Let the UI handler catch it (e.g., for toast error)
+      throw error;
     }
   }

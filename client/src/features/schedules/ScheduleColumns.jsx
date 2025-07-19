@@ -1,5 +1,5 @@
 import { X, Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/features/shared/toastHelpers";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -17,10 +17,10 @@ const ActionsCell = ({ schedule, onEdit, onDelete }) => {
     const handleDelete = async () => {
         try {
             await deleteSchedule(schedule.id);
-            toast.success(`Deleted ${schedule.name}`);
+            showToast.success("Deleted", schedule.name);
             onDelete?.();
         } catch {
-            toast.error(`Failed to delete ${schedule.name}`);
+            showToast.error("Failed to delete", schedule.name);
         }
     };
 
@@ -63,7 +63,7 @@ export const scheduleColumns = (onDelete, onEdit) => [
         cell: ({ row }) => {
             const rawDate = row.original.created_at;
             const formattedDate = new Date(rawDate).toLocaleString("en-US", {
-                timeZone: "America/Los_Angeles", // Set your desired zone here
+                timeZone: "America/Los_Angeles",
             });
             return <span>{formattedDate}</span>;
         },
