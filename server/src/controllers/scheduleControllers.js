@@ -20,7 +20,7 @@ export const addEmployee = async (req, res) => {
     try {
       const { name, roles, availability } = req.body;
   
-      if (!name || typeof roles !== 'string' || typeof availability !== 'object') {
+      if (!name || !Array.isArray(roles) || typeof availability !== 'object') {
         console.warn("Invalid input data received:", req.body);
         return res.status(400).json({ message: "Invalid input data" });
     }
@@ -77,7 +77,7 @@ export const addEmployee = async (req, res) => {
       const { id } = req.params;
       const { name, roles, availability } = req.body;
   
-      if (!name || typeof roles !== 'string' || typeof availability !== 'object') {
+      if (!name || !Array.isArray(roles) || typeof availability !== 'object') {
         console.warn("Invalid update data received:", req.body);
         return res.status(400).json({ message: "Invalid input data" });
       }

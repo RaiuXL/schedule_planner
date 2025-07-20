@@ -41,7 +41,7 @@ const CreateEmployeeSheetForm = ({ editingEmployee, setEditingEmployee, onEmploy
     const resetFormToEmployee = (employee) => {
         form.reset({
             name: employee.name,
-            roles: employee.roles.split(","),
+            roles: employee.roles,
             availability: employee.availability || {},
         });
     };
@@ -54,7 +54,7 @@ const CreateEmployeeSheetForm = ({ editingEmployee, setEditingEmployee, onEmploy
     const onSubmit = async (values) => {
         const payload = {
             name: values.name,
-            roles: values.roles.join(","),
+            roles: values.roles,
             availability: values.availability,
         };
 

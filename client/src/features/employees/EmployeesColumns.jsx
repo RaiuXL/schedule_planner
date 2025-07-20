@@ -17,7 +17,7 @@ import { daysInWeek } from "@/features/employees/EmployeesConstants";
 
 // Render role badges
 const RoleCell = ({ roles }) => {
-    const roleList = roles?.split(',') || [];
+    const roleList = Array.isArray(roles) ? roles : [];
     return (
         <div className="flex gap-1 flex-wrap">
             {roleList.map(role => <Badge key={role}>{role}</Badge>)}

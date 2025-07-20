@@ -18,7 +18,7 @@ export const insertEmployee = async ({ name, roles, availability }) => {
       const [result] = await pool.query(`
           INSERT INTO employees (name, roles, availability)
           VALUES (?, ?, ?)
-      `, [name, roles, JSON.stringify(availability)]);
+      `, [name, JSON.stringify(roles), JSON.stringify(availability)]);
       
       return { id: result.insertId, name, roles, availability };
   } catch (err) {
@@ -52,7 +52,7 @@ export const updateEmployee = async (id, { name, roles, availability }) => {
       UPDATE employees
       SET name = ?, roles = ?, availability = ?
       WHERE id = ?
-    `, [name, roles, JSON.stringify(availability), id]);
+    `, [name, JSON.stringify(roles), JSON.stringify(availability), id]);
 
     return result.affectedRows > 0; // true if a row was updated
   } catch (err) {
