@@ -62,21 +62,28 @@ export const updateEmployee = async (id, { name, roles, availability }) => {
 
 // GET all schedules
 export const getSchedules = async () => {
-  const [rows] = await pool.query("SELECT id, name, created_at FROM schedules ORDER BY created_at DESC");
+  const [rows] = await pool.query("SELECT id, name, month, year, created_at FROM schedules ORDER BY year DESC, month DESC");
   return rows;
 };
 
 // INSERT a new schedule
-export const insertSchedule = async ({ name }) => {
-  const [result] = await pool.query("INSERT INTO schedules (name) VALUES (?)", [name]);
-  const response = { id: result.insertId, name };
-  return response;
+export const insertSchedule = async ({ name, month, year }) => {
+  const [result] = await pool.query(
+    "INSERT INTO schedules (name, month, year) VALUES (?, ?, ?)",
+    [name, month, year]
+  );
+  return { id: result.insertId, name, month, year };
 };
-
 
 // DELETE schedule
 export const deleteSchedule = async (id) => {
   const [result] = await pool.query("DELETE FROM schedules WHERE id = ?", [id]);
   return result.affectedRows > 0;
+};
+
+// GET scheduleID
+export const getScheduleByIdFromDB = async (id) => {
+  const [rows] = await pool.query("SELECT * FROM schedules WHERE id = ?", [id]);
+  return rows[0] || null;
 };
 

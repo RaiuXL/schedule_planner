@@ -12,8 +12,10 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { deleteSchedule } from "@/services/api";
+import { Link } from "react-router-dom";
 
-const ActionsCell = ({ schedule, onEdit, onDelete }) => {
+
+const ActionsCell = ({ schedule, onDelete }) => {
     const handleDelete = async () => {
         try {
             await deleteSchedule(schedule.id);
@@ -26,9 +28,13 @@ const ActionsCell = ({ schedule, onEdit, onDelete }) => {
 
     return (
         <div className="flex gap-2 items-center">
-            <button onClick={() => onEdit?.(schedule)} className="text-primary hover:text-primary/80 transition-colors" title="Edit schedule">
+            <Link
+                to={`/schedules/${schedule.id}/edit`}
+                className="text-primary hover:text-primary/80 transition-colors"
+                title="Edit schedule"
+            >
                 <Pencil className="w-4 h-4" />
-            </button>
+            </Link>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <button className="text-destructive hover:text-destructive/80 transition-colors">
@@ -52,10 +58,18 @@ const ActionsCell = ({ schedule, onEdit, onDelete }) => {
     );
 };
 
-export const scheduleColumns = (onDelete, onEdit) => [
+export const scheduleColumns = (onDelete) => [
     {
         accessorKey: "name",
         header: "Name",
+    },
+    {
+        accessorKey: "month",
+        header: "Month",
+    },
+    {
+        accessorKey: "year",
+        header: "Year",
     },
     {
         accessorKey: "created_at",
@@ -74,7 +88,6 @@ export const scheduleColumns = (onDelete, onEdit) => [
         cell: ({ row }) => (
             <ActionsCell
                 schedule={row.original}
-                onEdit={onEdit}
                 onDelete={onDelete}
             />
         ),

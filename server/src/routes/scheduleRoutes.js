@@ -1,6 +1,6 @@
 // routes/scheduleRoutes.js
 import express from 'express';
-import {fetchEmployees, addEmployee, removeEmployee, editEmployee, fetchSchedules, addSchedule, removeSchedule } from '../controllers/scheduleControllers.js';
+import {fetchEmployees, addEmployee, removeEmployee, editEmployee, fetchSchedules, addSchedule, removeSchedule, fetchScheduleById } from '../controllers/scheduleControllers.js';
 
 const router = express.Router();
 
@@ -14,5 +14,9 @@ router.put('/employees/:id', editEmployee);
 router.get('/schedules', fetchSchedules);
 router.post('/schedules', addSchedule);
 router.delete('/schedules/:id', removeSchedule);
+
+// EDITOR ROUTES
+router.get("/schedules/:id", fetchScheduleById);
+
 
 export default router;

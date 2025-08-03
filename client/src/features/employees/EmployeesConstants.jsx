@@ -9,4 +9,4 @@ export const daysInWeek = [
 ];
 
 export const roles = ["Aide", "Med Tech", "Manager", "Security"];
-export const shifts = ["NOC", "AM", "EVE"];
+export const shifts = ["AM", "EVE", "NOC"];

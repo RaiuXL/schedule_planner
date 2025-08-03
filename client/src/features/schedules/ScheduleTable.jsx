@@ -24,7 +24,7 @@ const ScheduleTable = ({ data, onScheduleAdded }) => {
 
   const table = useReactTable({
     data: filteredSchedules,
-    columns: scheduleColumns(handleDeleteRefresh, () => {}),
+    columns: scheduleColumns(handleDeleteRefresh, () => { }),
     getCoreRowModel: getCoreRowModel(),
   });
 

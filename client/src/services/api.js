@@ -100,3 +100,18 @@ export async function deleteSchedule(id) {
       throw error;
     }
   }
+
+//   export const getScheduleById = async (id) => {
+//     const res = await fetch(`/api/schedules/${id}`);
+//     if (!res.ok) throw new Error("Failed to fetch schedule");
+//     return await res.json();
+//   };
+
+export const getScheduleById = async (id) => {
+    const res = await fetch(`${API_BASE_URL}/api/schedules/${id}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`API error: ${res.status} ${res.statusText} - ${text}`);
+    }
+    return await res.json();
+  };

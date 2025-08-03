@@ -1,5 +1,5 @@
 // controllers/scheduleController.js
-import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById, updateEmployee, getSchedules, insertSchedule, deleteSchedule } from '../db/dbQueries.js';
+import { getEmployees, insertEmployee, deleteEmployee, getEmployeeById, updateEmployee, getSchedules, insertSchedule, deleteSchedule, getScheduleByIdFromDB } from '../db/dbQueries.js';
 import chalk from 'chalk';
 
 // Fetch all information of employees
@@ -118,9 +118,11 @@ export const addEmployee = async (req, res) => {
   // POST new schedule
   export const addSchedule = async (req, res) => {
     try {
-      const { name } = req.body;
-      if (!name) return res.status(400).json({ message: "Schedule name is required" });
-      const newSchedule = await insertSchedule({ name });
+      const { name, month, year } = req.body;
+      if (!name || !month || !year) {
+        return res.status(400).json({ message: "Name, month, and year are required" });
+      }
+      const newSchedule = await insertSchedule({ name, month, year });
       return res.status(201).json({ message: "Schedule created", schedule: newSchedule });
     } catch (err) {
       console.error("Error creating schedule:", err);
@@ -142,6 +144,19 @@ export const addEmployee = async (req, res) => {
     } catch (err) {
       console.error("Error deleting schedule:", err);
       return res.status(500).json({ message: "Server error" }); // <--- add return here
+    }
+  };
+
+  // GET schedule ID
+  export const fetchScheduleById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const schedule = await getScheduleByIdFromDB(id);
+      if (!schedule) return res.status(404).json({ message: "Not found" });
+      return res.status(200).json({ schedule });
+    } catch (err) {
+      console.error("Error fetching schedule by ID:", err);
+      return res.status(500).json({ message: "Server error" });
     }
   };
   
