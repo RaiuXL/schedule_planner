@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { getScheduleById, fetchEmployees } from "@/services/api";
-import { shifts, daysInWeek } from "@/features/employees/EmployeesConstants";
+import { shifts} from "@/features/employees/EmployeesConstants";
 const shiftRoleMap = {
   AM: ["Manager", "Med Tech", "Aide"],
   EVE: ["Manager", "Med Tech", "Aide", "Security"],
@@ -27,6 +27,32 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { getMonth, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth } from "date-fns";
+
+function getWeeksInMonth(month, year) {
+  const start = startOfWeek(startOfMonth(new Date(year, month - 1)));
+  const end = endOfWeek(endOfMonth(new Date(year, month - 1)));
+  const weeks = [];
+  let current = start;
+
+  while (current <= end) {
+    const week = Array.from({ length: 7 }, (_, i) => {
+      const date = addDays(current, i);
+      return {
+        date,
+        label: format(date, "EEE"),
+        dayNumber: format(date, "d"),
+        isCurrentMonth: getMonth(date) === month - 1,
+        iso: format(date, "yyyy-MM-dd"),
+      };
+    });
+
+    weeks.push(week);
+    current = addDays(current, 7);
+  }
+
+  return weeks;
+}
 
 function getCandidates({ employees, role, day, shift }) {
 
@@ -60,7 +86,6 @@ const AssignCell = ({ day, shift, role, employees, value, onSelect }) => {
 
   return (
     <div className="flex flex-col h-full justify-start">
-      {/* Add button at top */}
       <div className="flex justify-end mb-1">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -123,7 +148,6 @@ const AssignCell = ({ day, shift, role, employees, value, onSelect }) => {
         </Popover>
       </div>
 
-      {/* Employee blocks below */}
       <div className="flex flex-col gap-1 overflow-visible">
         {selectedEmployees.map((emp) => (
           <div
@@ -158,12 +182,27 @@ const ScheduleEditorPage = () => {
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
   const [assignments, setAssignments] = useState({});
+  const [currentMonth, setCurrentMonth] = useState(null);
+  const [currentYear, setCurrentYear] = useState(null);
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const weeks = getWeeksInMonth(currentMonth, currentYear);
+  const visibleWeek = weeks[currentWeekIndex] || [];
+
+
 
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
         const data = await getScheduleById(id);
         setSchedule(data.schedule);
+        setCurrentMonth(data.schedule?.month);
+        setCurrentYear(data.schedule?.year);
+        const weeks = currentMonth && currentYear ? getWeeksInMonth(currentMonth, currentYear) : [];
+        const visibleWeek = weeks[currentWeekIndex] || [];
+        if (loading || !schedule || !currentMonth || !currentYear) {
+          return <div className="p-4 text-center">Loading schedule...</div>;
+        }
+
       } catch (error) {
         console.error("Error fetching schedule:", error);
       } finally {
@@ -208,12 +247,46 @@ const ScheduleEditorPage = () => {
       </div>
 
       <div className="rounded-lg shadow p-4 overflow-x-auto w-full">
+        <div className="flex justify-end items-center gap-4 px-4 py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentWeekIndex((prev) => Math.max(prev - 1, 0))}
+            disabled={currentWeekIndex === 0}
+          >
+            ←
+          </Button>
+          <span className="text-sm font-medium">Week {currentWeekIndex + 1}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              setCurrentWeekIndex((prev) =>
+                Math.min(prev + 1, weeks.length - 1)
+              )
+            }
+            disabled={currentWeekIndex === weeks.length - 1}
+          >
+            →
+          </Button>
+        </div>
+
 
         <div className=" bg-muted grid text-center text-sm font-medium border-b" style={{ gridTemplateColumns: '300px repeat(7, 1fr)' }}>
           <div className="p-5 text-left font-semibold">Shifts</div>
-          {daysInWeek.map((day) => (
-            <div key={day.value} className="p-5">{day.label}</div>
+          {visibleWeek.map((day, idx) => (
+            <div key={idx} className="p-2">
+              <div
+                className={`flex flex-col items-center text-sm font-semibold ${!day.isCurrentMonth ? "text-muted-foreground" : ""
+                  }`}
+              >
+                <span>{day.label}</span>
+                <span className="text-lg">{day.dayNumber}</span>
+              </div>
+            </div>
           ))}
+
+
         </div>
 
         {shifts.map((shift) => (
@@ -236,30 +309,34 @@ const ScheduleEditorPage = () => {
                 <div className="p-5 text-left font-medium bg-accent text-accent-foreground">
                   {role}
                 </div>
-                {daysInWeek.map((day) => {
-                  const cellKey = `${shift}|${role}|${day.value}`;
+                {visibleWeek.map((day, idx) => {
+                  const cellKey = `${shift}|${role}|${day.label}`;
+                  const isGreyedOut = !day.isCurrentMonth;
+
                   return (
                     <div
-                      key={cellKey}
-                      className="p-2 border bg-card text-card-foreground"
+                      key={idx}
+                      className={`p-2 border ${isGreyedOut ? "bg-muted text-muted-foreground opacity-50 cursor-not-allowed" : "bg-card text-card-foreground"}`}
                     >
-                      <AssignCell
-                        day={day.value}
-                        shift={shift}
-                        role={role}
-                        employees={employees}
-                        value={assignments[cellKey] || []}
-                        onSelect={(updateFn) =>
-                          setAssignments((prev) => ({
-                            ...prev,
-                            [cellKey]: updateFn(prev[cellKey] || []),
-                          }))
-                        }
-
-                      />
+                      {!isGreyedOut && (
+                        <AssignCell
+                          day={day.label}
+                          shift={shift}
+                          role={role}
+                          employees={employees}
+                          value={assignments[cellKey] || []}
+                          onSelect={(updateFn) =>
+                            setAssignments((prev) => ({
+                              ...prev,
+                              [cellKey]: updateFn(prev[cellKey] || []),
+                            }))
+                          }
+                        />
+                      )}
                     </div>
                   );
                 })}
+
               </div>
             ))}
           </React.Fragment>
